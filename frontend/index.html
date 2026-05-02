@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attacker DB</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #182033;
+      --muted: #667085;
+      --border: #d9e0ea;
+      --accent: #0f766e;
+      --danger: #b42318;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      min-height: 40px;
+      padding: 0 16px;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.7;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1080px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #eef3f8;
+      color: #344054;
+      font-size: 12px;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code {
+      display: block;
+      max-width: 680px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+      color: #1d2939;
+    }
+
+    .empty,
+    .error {
+      padding: 28px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+    }
+
+    .error {
+      color: var(--danger);
+      border-color: #f3b4ae;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: min(100% - 20px, 1180px);
+        padding: 20px 0;
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+<h1>KEYS_LIST</h1>
+      <div class="status" id="status">Dang tai du lieu...</div>
+    </div>
+    <button id="refreshButton" type="button">Tai lai</button>
+  </header>
+
+  <section id="content"></section>
+  </main>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const contentEl = document.getElementById("content");
+    const refreshButton = document.getElementById("refreshButton");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderTable(title, columns, rows) {
+      if (!rows.length) {
+        return `
+          <section class="table-wrap">
+            <h2>${escapeHtml(title)}</h2>
+            <div class="empty">Chua co du lieu trong bang.</div>
+          </section>
+        `;
+      }
+
+      const header = columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("");
+      const body = rows.map((item) => `
+        <tr>
+          ${columns.map((column) => {
+            const value = item[column.toLowerCase().replace(/ /g, "_")] ?? "";
+            return `<td>${column.toLowerCase().includes("key") || column.toLowerCase().includes("content") ? `<code title="${escapeHtml(value)}">${escapeHtml(value)}</code>` : escapeHtml(value)}</td>`;
+          }).join("")}
+        </tr>
+      `).join("");
+
+      return `
+        <section class="table-wrap">
+          <h2>${escapeHtml(title)}</h2>
+          <table>
+            <thead>
+              <tr>${header}</tr>
+            </thead>
+            <tbody>${body}</tbody>
+          </table>
+        </section>
+      `;
+    }
+
+    function renderContent(keys) {
+      const rows = keys.map((item) => ({
+        id: item.id,
+        machine_id: item.machine_id,
+        public_key: item.public_key,
+        private_key: item.private_key,
+        aes_key: item.aes_key || "",
+        content: item.content || ""
+      }));
+
+      contentEl.innerHTML = renderTable(
+        "KEYS_LIST",
+        ["ID", "Machine ID", "Public Key", "Private Key", "AES Key", "Content"],
+        rows
+      );
+    }
+
+    async function loadKeys() {
+      refreshButton.disabled = true;
+      statusEl.textContent = "Dang tai du lieu...";
+
+      try {
+        const response = await fetch("/api/keys", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.status === "error") {
+          throw new Error(data.message || "API tra ve loi");
+        }
+
+        const keys = Array.isArray(data.keys) ? data.keys : [];
+        renderContent(keys);
+        statusEl.textContent = `Da tai ${keys.length} dong`;
+      } catch (error) {
+        contentEl.innerHTML = `<div class="error">Khong tai duoc du lieu: ${escapeHtml(error.message)}</div>`;
+        statusEl.textContent = "Loi ket noi API";
+      } finally {
+        refreshButton.disabled = false;
+      }
+    }
+
+    refreshButton.addEventListener("click", loadKeys);
+    loadKeys();
+  </script>
+</body>
+</html>
