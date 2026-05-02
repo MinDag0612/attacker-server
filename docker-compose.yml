@@ -21,7 +21,6 @@ services:
 
   api:
     build: ./infrac
-    image: dangwminh/attacker-api:latest
     container_name: attacker_api
     restart: unless-stopped
     depends_on:
@@ -41,7 +40,6 @@ services:
 
   frontend:
     build: ./frontend
-    image: dangwminh/attacker-frontend:latest
     container_name: attacker_frontend
     restart: unless-stopped
     depends_on:
