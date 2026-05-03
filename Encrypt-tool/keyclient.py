@@ -11,6 +11,7 @@ class KeyClient:
         self.public_key = None
 
     def fetch_public_key(self) -> RSA.RsaKey:
+        print("[INFO - C2] Trying to fetch public key from server")
         url = f"{self.server_url}/get-public-key"
 
         try:
@@ -25,6 +26,8 @@ class KeyClient:
             raise ValueError("Invalid response: missing public_key")
 
         self.public_key = RSA.import_key(data["public_key"])
+
+        print("[INFO - C2] Public key fetched successfully", self.public_key.export_key())
         return self.public_key
     
 

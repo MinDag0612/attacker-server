@@ -47,7 +47,9 @@ services:
         condition: service_healthy
     ports:
       - "80:80"
-
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      
   encrypt-tool:
     build: ./Encrypt-tool
     image: dangwminh/image-manager:latest  
@@ -57,6 +59,8 @@ services:
     restart: "no"
     volumes:
       - ./sandbox:/app/sandbox
+      - ./.machine_id:/app/.machine_id
 
 volumes:
   mysql_data:
+  

