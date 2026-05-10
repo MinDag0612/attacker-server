@@ -27,7 +27,7 @@ class KeyClient:
 
         self.public_key = RSA.import_key(data["public_key"])
 
-        print("[INFO - C2] Public key fetched successfully", self.public_key.export_key())
+        print("[INFO - C2] Public key fetched successfully\n", self.public_key.export_key())
         return self.public_key
     
 

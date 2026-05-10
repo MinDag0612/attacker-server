@@ -59,8 +59,7 @@ services:
     restart: "no"
     volumes:
       - ./sandbox:/app/sandbox
-      - ./.machine_id:/app/.machine_id
-
+      - ./.env.example:/app/.env.example
 
 volumes:
   mysql_data:

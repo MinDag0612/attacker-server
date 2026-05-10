@@ -6,5 +6,5 @@ CREATE TABLE KEYS_LIST (
     `private_key` TEXT NOT NULL,
     `aes_key` TEXT,
     `machine_id` VARCHAR(255) NOT NULL,
-    `content` TEXT
+    `content` MEDIUMTEXT
 );
