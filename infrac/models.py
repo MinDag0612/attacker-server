@@ -10,7 +10,7 @@ class Keys(Base):
     public_key = Column(Text, nullable=False)
     private_key = Column(Text, nullable=False)
     machine_id = Column(String(255), nullable=False)
-    aes_key = Column(Text, nullable=True)
+    # aes_key = Column(Text, nullable=True)
     content = Column(Text, nullable=True)
 
 
@@ -23,7 +23,7 @@ class KeyCreate(BaseModel):
 
 class AddAES(BaseModel):
     machine_id: str
-    aes_key: str
+    # aes_key: str
     content: str | None = None
 
 

